@@ -5,10 +5,9 @@
  *      Author: MAPF
  */
 
-/* R CMD SHLIB Rlikelihood.c
+/*
  *
- * For the cluster execution:
- * MAKEFLAGS="PKG_CFLAGS=-I/home/mfranco/addlibs/include/"  R CMD SHLIB Rlikelihood.c -L/home/mfranco/addlibs/lib -lgslcblas -lgsl
+ * R CMD SHLIB *.c -o libRlikelihood.so
  *
  * */
 
@@ -28,7 +27,8 @@ SEXP likelihood(SEXP model, SEXP Ln, SEXP Ls, SEXP n
 
 	// GETTING THE FUNCTION PARAMETERS
 	int nObs, j; //INTERNAL COUNTER
-	char *model_;
+	char modelID;
+	const char *model_;
 	double *obsPs_, *obsPn_, *obsSn_, *obsSs_, *obsDn_, *obsDs_;
 	double *Ln_, *Ls_, *n_, *Mutheta_, *lambda_, *r_, *smean_, *smax_, *Pb_, *Sb_, *shapeBeta_, *shapeMu_;
 	double *cubTol_, *cubMaxEval_, *cubZero_, *cubSInf_;
@@ -42,7 +42,7 @@ SEXP likelihood(SEXP model, SEXP Ln, SEXP Ls, SEXP n
 	PROTECT(obsDn = coerceVector(obsDn,REALSXP));
 	PROTECT(obsDs = coerceVector(obsDs,REALSXP));
 
-	// Now we can attribute to internal C int
+	// Now we can attribute to internal C
 
 	obsPs_ = REAL(obsPs);
 	obsPn_ = REAL(obsPn);
@@ -51,8 +51,15 @@ SEXP likelihood(SEXP model, SEXP Ln, SEXP Ls, SEXP n
 	obsDn_ = REAL(obsDn);
 	obsDs_ = REAL(obsDs);
 
-	model_ = CHAR(STRING_ELT(model, 0));
-	// TODO verify if model is valid
+	int i = 0;
+	for(i = 0; i < LENGTH(model); i++){
+		model_ = CHAR(STRING_ELT(model, i));
+	}
+
+	if(strcmp(model_,"model_A") == 0){ modelID = 'A';	}
+	else if(strcmp(model_,"model_B") == 0){	modelID = 'B'; }
+	else if(strcmp(model_,"model_C") == 0){	modelID = 'C'; }
+	else {error("Invalid model: %s",model_);}
 
 	// Parameters/Constants
 	Ln_ = REAL(Ln);
@@ -103,7 +110,7 @@ SEXP likelihood(SEXP model, SEXP Ln, SEXP Ls, SEXP n
 	res[0] = 0.0;
 	for(j=0; j< nObs; j++){
 
-		res[0] += lnL_MKS_PhiS_PhiMu(model_[0],Ln_[0], Ls_[0], n_[0]
+		res[0] += lnL_MKS_PhiS_PhiMu(modelID,Ln_[0], Ls_[0], n_[0]
 				,obsPs_[j],obsPn_[j],obsSn_[j],obsSs_[j],obsDn_[j],obsDs_[j]
 				,Mutheta_[0],lambda_[0],r_[0],smean_[0],smax_[0], Pb_[0], Sb_[0]
 				,shapeBeta_[0],shapeMu_[0]
@@ -201,13 +208,21 @@ SEXP calcEPn_OverPhiS_adapt(SEXP model, SEXP Ln, SEXP n
 	SEXP resEPn;
 
 	// GETTING THE FUNCTION PARAMETERS
-	char *model_;
+	const char *model_;
+	char modelID;
 	double *Ln_, *n_, *Mutheta_, *r_, *smean_, *smax_, *Pb_, *Sb_, *shapeBeta_;
 	double *cubTol_, *cubMaxEval_, *cubZero_, *cubSInf_;
 	double *res;
 
-	model_ = CHAR(STRING_ELT(model, 0));
-	// TODO verify if model is valid
+	int i = 0;
+	for(i = 0; i < LENGTH(model); i++){
+		model_ = CHAR(STRING_ELT(model, i));
+	}
+
+	if(strcmp(model_,"model_A") == 0){ modelID = 'A';	}
+	else if(strcmp(model_,"model_B") == 0){	modelID = 'B'; }
+	else if(strcmp(model_,"model_C") == 0){	modelID = 'C'; }
+	else {error("Invalid model: %s",model_);}
 
 	// Parameters/Constants
 	Ln_ = REAL(Ln);
@@ -231,7 +246,7 @@ SEXP calcEPn_OverPhiS_adapt(SEXP model, SEXP Ln, SEXP n
 	res = REAL(resEPn);
 	res[0] = 0.0;
 
-	res[0] += calc_EPn_OverPhiS_adapt(model_[0],Ln_[0], n_[0]
+	res[0] += calc_EPn_OverPhiS_adapt(modelID,Ln_[0], n_[0]
 	                                   , Mutheta_[0], r_[0], smean_[0], smax_[0] ,Pb_[0], Sb_[0]
 	                                   , shapeBeta_[0]
 	                                   ,cubTol_[0],cubMaxEval_[0],cubZero_[0],cubSInf_[0]);
@@ -249,13 +264,21 @@ SEXP calcESn_OverPhiS_adapt(SEXP model, SEXP Ln, SEXP n
 	SEXP resESn;
 
 	// GETTING THE FUNCTION PARAMETERS
-	char *model_;
+	char modelID;
+	const char *model_;
 	double *Ln_, *n_, *Mutheta_, *smean_, *smax_, *Pb_, *Sb_, *shapeBeta_;
 	double *cubTol_, *cubMaxEval_, *cubZero_, *cubSInf_;
 	double *res;
 
-	model_ = CHAR(STRING_ELT(model, 0));
-	// TODO verify if model is valid
+	int i = 0;
+	for(i = 0; i < LENGTH(model); i++){
+		model_ = CHAR(STRING_ELT(model, i));
+	}
+
+	if(strcmp(model_,"model_A") == 0){ modelID = 'A';	}
+	else if(strcmp(model_,"model_B") == 0){	modelID = 'B'; }
+	else if(strcmp(model_,"model_C") == 0){	modelID = 'C'; }
+	else {error("Invalid model: %s",model_);}
 
 	// Parameters/Constants
 	Ln_ = REAL(Ln);
@@ -278,7 +301,7 @@ SEXP calcESn_OverPhiS_adapt(SEXP model, SEXP Ln, SEXP n
 	res = REAL(resESn);
 	res[0] = 0.0;
 
-	res[0] += calc_ESn_OverPhiS_adapt(model_[0], Ln_[0], n_[0]
+	res[0] += calc_ESn_OverPhiS_adapt(modelID, Ln_[0], n_[0]
 	                                   , Mutheta_[0], smean_[0], smax_[0], Pb_[0], Sb_[0]
 	                                   , shapeBeta_[0]
 	                                   ,cubTol_[0],cubMaxEval_[0],cubZero_[0],cubSInf_[0]);
@@ -296,13 +319,21 @@ SEXP calcEDn_OverPhiS_adapt(SEXP model, SEXP Ln, SEXP n
 	SEXP resEDn;
 
 	// GETTING THE FUNCTION PARAMETERS
-	char *model_;
+	const char *model_;
+	char modelID;
 	double *Ln_, *n_, *Mutheta_, *lambda_, *r_, *smean_, *smax_, *Pb_, *Sb_, *shapeBeta_;
 	double *cubTol_, *cubMaxEval_, *cubZero_, *cubSInf_;
 	double *res;
 
-	model_ = CHAR(STRING_ELT(model, 0));
-	// TODO verify if model is valid
+	int i = 0;
+	for(i = 0; i < LENGTH(model); i++){
+		model_ = CHAR(STRING_ELT(model, i));
+	}
+
+	if(strcmp(model_,"model_A") == 0){ modelID = 'A';	}
+	else if(strcmp(model_,"model_B") == 0){	modelID = 'B'; }
+	else if(strcmp(model_,"model_C") == 0){	modelID = 'C'; }
+	else {error("Invalid model: %s",model_);}
 
 	// Parameters/Constants
 	Ln_ = REAL(Ln);
@@ -327,7 +358,7 @@ SEXP calcEDn_OverPhiS_adapt(SEXP model, SEXP Ln, SEXP n
 	res = REAL(resEDn);
 	res[0] = 0.0;
 
-	res[0] += calc_EDn_OverPhiS_adapt(model_[0], Ln_[0], n_[0]
+	res[0] += calc_EDn_OverPhiS_adapt(modelID, Ln_[0], n_[0]
 	                                  , Mutheta_[0], lambda_[0], r_[0], smean_[0], smax_[0], Pb_[0], Sb_[0]
 	                                  , shapeBeta_[0]
 	                                  ,cubTol_[0],cubMaxEval_[0],cubZero_[0],cubSInf_[0]);
