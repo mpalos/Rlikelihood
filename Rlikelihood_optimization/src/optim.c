@@ -39,16 +39,12 @@ int *DSobs = NULL;
 int *PNobs = NULL;
 int *SNobs = NULL;
 int *DNobs = NULL;
-//double *x_init = NULL;
 double step_size, tol, epsabs;
 double maxSame, maxIter;
-//double Ls = 3000, Ln = 7000, n = 24;
 double cubTol, cubZero, cubSInf;
 int cubMaxEval;
 double *x_init = NULL;
 double *ss_init = NULL;
-//long nData = 0;
-//int startPoint = -1;
 
 // Global variables:
 double *x_params = NULL;
@@ -93,13 +89,6 @@ double lnL_f(const gsl_vector * x, void *params) {
 	double shapeBeta = gsl_vector_get(x, 7);
 	double shapeMu = gsl_vector_get(x, 8);
 
-//	  /**** DEBUG *****/
-//	  printf("x: %f %f %f %f %f %f %f %f %f \n"
-//			  ,gsl_vector_get(x,0),gsl_vector_get(x,1),gsl_vector_get(x,2),gsl_vector_get(x,3)
-//			  ,gsl_vector_get(x,4),gsl_vector_get(x,5),gsl_vector_get(x,6),gsl_vector_get(x,7)
-//			  ,gsl_vector_get(x,8));
-//	  /****************/
-
 	// PARAMETERS
 	if(model == 'A'){
 		theta 			= exp(gsl_vector_get(x, 0));
@@ -125,10 +114,6 @@ double lnL_f(const gsl_vector * x, void *params) {
 		shapeMu 		= exp(gsl_vector_get(x, 8));
 	}
 
-//	/**** DEBUG ******/
-//	printf("x: %f %f %f %f %f %f %f %f %f \n",theta,lambda,r,smean,smax,Pb,Sb,shapeBeta,shapeMu);
-//	/*****************/
-
 	for (j = 0; j < ((struct params_s *) params)->nObs; j++) {
 		lnL += lnL_MKS_PhiS_PhiMu(model,
 				((struct params_s *) params)->Ln,
@@ -142,29 +127,6 @@ double lnL_f(const gsl_vector * x, void *params) {
 				((struct params_s *) params)->DSobs[j],
 				theta, lambda, r, smean, smax, Pb, Sb, shapeBeta, shapeMu,
 				cubTol, cubMaxEval, cubZero, cubSInf);
-
-		/****** DEBUG *****/
-//		printf("obs: %d %d %d %d %d %d %f\n",
-//				((struct params_s *) params)->PSobs[j],
-//				((struct params_s *) params)->PNobs[j],
-//				((struct params_s *) params)->SNobs[j],
-//				((struct params_s *) params)->SSobs[j],
-//				((struct params_s *) params)->DNobs[j],
-//				((struct params_s *) params)->DSobs[j],
-//				lnL_MKS_PhiS_PhiMu(model,
-//								((struct params_s *) params)->Ln,
-//								((struct params_s *) params)->Ls,
-//								((struct params_s *) params)->n,
-//								((struct params_s *) params)->PSobs[j],
-//								((struct params_s *) params)->PNobs[j],
-//								((struct params_s *) params)->SNobs[j],
-//								((struct params_s *) params)->SSobs[j],
-//								((struct params_s *) params)->DNobs[j],
-//								((struct params_s *) params)->DSobs[j],
-//								theta, lambda, r, smean, smax, Pb, Sb, shapeBeta, shapeMu,
-//								cubTol, cubMaxEval, cubZero, cubSInf));
-//
-		/*****************/
 
 	}
 
@@ -255,26 +217,11 @@ int optim_lnL_derivatives(const gsl_multimin_fdfminimizer_type *T, void *params,
 
 	gsl_multimin_fdfminimizer_set(s, &my_func, x, step_size, tol); //ORIGINAL
 
-//	  /**** DEBUG *****/
-//	  printf("x: %f %f %f %f %f %f %f %f %f \n"
-//			  ,gsl_vector_get(x,0),gsl_vector_get(x,1),gsl_vector_get(x,2),gsl_vector_get(x,3)
-//			  ,gsl_vector_get(x,4),gsl_vector_get(x,5),gsl_vector_get(x,6),gsl_vector_get(x,7)
-//			  ,gsl_vector_get(x,8));
-//
-//	  /***************/
-
 	//PRINT HEADER IF NECESSARY
 //	printf ("startPoint;nData;iter;"
 //			"theta;lambda;r;smean;smax;shapeBeta;shapeMu;"
 //			"f;grad;status\n"
 //	 );
-
-//	  /**** DEBUG *****/
-//	  printf("x: %f %f %f %f %f %f %f %f %f \n"
-//			  ,gsl_vector_get(x,0),gsl_vector_get(x,1),gsl_vector_get(x,2),gsl_vector_get(x,3)
-//			  ,gsl_vector_get(x,4),gsl_vector_get(x,5),gsl_vector_get(x,6),gsl_vector_get(x,7)
-//			  ,gsl_vector_get(x,8));
-//	  /****************/
 
 	double mod_grad = 0.0;
 	int n_dim = 2;
@@ -300,12 +247,6 @@ int optim_lnL_derivatives(const gsl_multimin_fdfminimizer_type *T, void *params,
 	do {
 		iter++;
 		status = gsl_multimin_fdfminimizer_iterate(s);
-//		  /**** DEBUG *****/
-//		  printf("x: %f %f %f %f %f %f %f %f %f \n"
-//				  ,gsl_vector_get(x,0),gsl_vector_get(x,1),gsl_vector_get(x,2),gsl_vector_get(x,3)
-//				  ,gsl_vector_get(x,4),gsl_vector_get(x,5),gsl_vector_get(x,6),gsl_vector_get(x,7)
-//				  ,gsl_vector_get(x,8));
-//		  /****************/
 
 		if (status) {
 			// IF IS NECESSARY TO PRINT THE ERRORS ...
@@ -383,19 +324,6 @@ int optim_lnL_simplex(const gsl_multimin_fminimizer_type *T, void *params, gsl_v
 
 	  gsl_multimin_function minex_func = {&lnL_f, n, params};
 
-//	  /**** DEBUG *****/
-//	  printf("x: %f %f %f %f %f %f %f %f %f \n"
-//			  ,gsl_vector_get(x,0),gsl_vector_get(x,1),gsl_vector_get(x,2),gsl_vector_get(x,3)
-//			  ,gsl_vector_get(x,4),gsl_vector_get(x,5),gsl_vector_get(x,6),gsl_vector_get(x,7)
-//			  ,gsl_vector_get(x,8));
-//
-//	  printf("ss: %f %f %f %f %f %f %f %f %f \n"
-//			  ,gsl_vector_get(ss,0),gsl_vector_get(ss,1),gsl_vector_get(ss,2),gsl_vector_get(ss,3)
-//			  ,gsl_vector_get(ss,4),gsl_vector_get(ss,5),gsl_vector_get(ss,6),gsl_vector_get(ss,7)
-//			  ,gsl_vector_get(ss,8));
-//
-//	  /***************/
-
 	  //Use x_params variable
 	  gsl_vector_set(ss, 0, log(1 + (gsl_vector_get(ss,0) / exp(gsl_vector_get(x,0)))));
 	  gsl_vector_set(ss, 1, log(1 + (gsl_vector_get(ss,1) / exp(gsl_vector_get(x,1)))));
@@ -414,15 +342,6 @@ int optim_lnL_simplex(const gsl_multimin_fminimizer_type *T, void *params, gsl_v
 	  gsl_vector_set(ss, 7, log(1 + (gsl_vector_get(ss,7)  / exp(gsl_vector_get(x,7)))));
 	  gsl_vector_set(ss, 8, log(1 + (gsl_vector_get(ss,8)  / exp(gsl_vector_get(x,8)))));
 
-
-//	  /**** DEBUG *****/
-//	  printf("ss: %f %f %f %f %f %f %f %f %f \n"
-//			  ,gsl_vector_get(ss,0),gsl_vector_get(ss,1),gsl_vector_get(ss,2),gsl_vector_get(ss,3)
-//			  ,gsl_vector_get(ss,4),gsl_vector_get(ss,5),gsl_vector_get(ss,6),gsl_vector_get(ss,7)
-//			  ,gsl_vector_get(ss,8));
-//
-//	  /***************/
-
 	  gsl_set_error_handler_off();
 
 	  s = gsl_multimin_fminimizer_alloc (T, n);
@@ -430,10 +349,6 @@ int optim_lnL_simplex(const gsl_multimin_fminimizer_type *T, void *params, gsl_v
 
 	  //PRINT START POINT
 	  size = gsl_multimin_fminimizer_size (s);
-//	  /**** DEBUG *****/
-//	  printf("size: %f\n",s->size);
-//	  /****************/
-
 
 	  printResult(model,iter,s->x,lnL_f(x,params),size,-2);
 
@@ -455,7 +370,6 @@ int optim_lnL_simplex(const gsl_multimin_fminimizer_type *T, void *params, gsl_v
 
 					if(var!=nRerun){ //Reset rerun
 						gsl_multimin_fminimizer_set (s, &minex_func, s->x, ss); //set the simplex again!!!
-						//iterPerRun = 0; //set iterPerRun
 					}
 
 					break;
@@ -488,7 +402,6 @@ int optim_lnL_simplex(const gsl_multimin_fminimizer_type *T, void *params, gsl_v
 	outSize[0] = size;
 	outIter[0] = iter;
 
-	//gsl_vector_free(ss);
 	gsl_multimin_fminimizer_free (s);
 
 	  return status;
@@ -516,12 +429,6 @@ int runOptimization_der(char model, char method
 	step_size = methodParams[2];
 	tol = methodParams[3];
 	maxSame = methodParams[4];
-
-//	/***** DEBUG *******/
-//	printf("params: %f %f %f %f %f\n",methodParams[0],methodParams[1],methodParams[2],methodParams[3],methodParams[4]);
-//	printf("params: %f %f %f %f %f\n",epsabs,maxIter,step_size,tol,maxSame);
-//
-//	/*******************/
 
 	cubZero = cubParams[0];
 	cubSInf = cubParams[1];
@@ -607,23 +514,6 @@ int runOptimization_der(char model, char method
 
 	status = optim_lnL_derivatives(Tfdfmin, &par, &x.vector, res, outf, outGrad, outIter);
 
-//	/************ DEBUG *********/
-//		printf("res: %f %f %f %f %f %f %f %f %f %f %f %f\n"
-//				,gsl_vector_get(res,0)
-//				,gsl_vector_get(res,1)
-//				,gsl_vector_get(res,2)
-//				,gsl_vector_get(res,3)
-//				,gsl_vector_get(res,4)
-//				,gsl_vector_get(res,5)
-//				,gsl_vector_get(res,6)
-//				,gsl_vector_get(res,7)
-//				,gsl_vector_get(res,8)
-//				,gsl_vector_get(addRes,0)
-//				,gsl_vector_get(addRes,1)
-//				,gsl_vector_get(addRes,2));
-//
-//	/************       *********/
-
 	//get results
 	outRes[0] = exp(gsl_vector_get(res,0));
 	outRes[1] = exp(gsl_vector_get(res,1));
@@ -699,35 +589,20 @@ int runOptimization_wder(char model, char method
 
 	//startpoint memory allocation
 	x_init = malloc(sizeof(double) * nT); if (x_init == NULL) {handle_error("malloc: x_init");}
-	// x_init <- startPoint
-	//if(model == 'A'){
-		x_init[0] = startPoint[0];	// theta
-		x_init[1] = startPoint[1];	// lambda
-		x_init[2] = startPoint[2];	// r
-		x_init[3] = startPoint[3];	// smean
-		x_init[4] = startPoint[4];	// smax
-		x_init[5] = startPoint[5];	// Pb
-		x_init[6] = startPoint[6];	// Sb
-		x_init[7] = startPoint[7];	// shapeBeta
-		x_init[8] = startPoint[8];	// shapeMu
-	//}
 
-//	else if(model == 'B' || model == 'C'){
-//		x_init[0] = startPoint[0]; 	// theta
-//		x_init[1] = startPoint[1];	// lambda
-//		x_init[2] = startPoint[2];	// r
-//		x_init[3] = startPoint[3];	// smean
-//		x_init[4] = startPoint[4];	// smax
-//		x_init[5] = startPoint[5];	// Pb
-//		x_init[6] = startPoint[6];   	// Sb
-//		x_init[7] = startPoint[7];	// shapeBeta
-//		x_init[8] = startPoint[8];	// shapeMu
-//	}
+	x_init[0] = startPoint[0];	// theta
+	x_init[1] = startPoint[1];	// lambda
+	x_init[2] = startPoint[2];	// r
+	x_init[3] = startPoint[3];	// smean
+	x_init[4] = startPoint[4];	// smax
+	x_init[5] = startPoint[5];	// Pb
+	x_init[6] = startPoint[6];	// Sb
+	x_init[7] = startPoint[7];	// shapeBeta
+	x_init[8] = startPoint[8];	// shapeMu
+
 
 	//stepSize memory allocation
 	ss_init = malloc(sizeof(double) * nT); if (x_init == NULL) {handle_error("malloc: ss_init");}
-	// x_init <- startPoint
-//	if(model == 'A'){
 		ss_init[0] = stepSize[0];		// theta
 		ss_init[1] = stepSize[1];		// lambda
 		ss_init[2] = stepSize[2];		// r
@@ -737,31 +612,9 @@ int runOptimization_wder(char model, char method
 		ss_init[6] = stepSize[6];		// Sb
 		ss_init[7] = stepSize[7];		// shapeBeta
 		ss_init[8] = stepSize[8];		// shapeMu
-//	}
-
-//	else if(model == 'B' || model == 'C'){
-//		ss_init[0] = stepSize[0]; 	// theta
-//		ss_init[1] = stepSize[1];		// lambda
-//		ss_init[2] = stepSize[2];		// r
-//		ss_init[3] = stepSize[3];		// smean
-//		ss_init[4] = stepSize[4];		// smax
-//		ss_init[5] = stepSize[5];		// Pb
-//		ss_init[6] = stepSize[6];   	// Sb
-//		ss_init[7] = stepSize[7];		// shapeBeta
-//		ss_init[8] = stepSize[8];		// shapeMu
-//	}
 
 	gsl_vector_view x = gsl_vector_view_array(x_init, nT);
 	gsl_vector_view ss = gsl_vector_view_array(ss_init, nT);
-
-	/****** DEBUG ********/
-	// Print x_init
-//	printf("%f %f %f %f %f %f %f %f %f\n"
-//			,x_init[0],x_init[1],x_init[2],x_init[3],x_init[4],x_init[5],x_init[6],x_init[7],x_init[8]);
-//
-//	printf("%f %f %f %f %f %f %f %f %f\n"
-//			,stepSize[0],stepSize[1],stepSize[2],stepSize[3],stepSize[4],stepSize[5],stepSize[6],stepSize[7],stepSize[8]);
-	/*********************/
 
 	// Define optimization algorithm/ run the optimizer
 
